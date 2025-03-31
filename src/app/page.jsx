@@ -1,3 +1,4 @@
+import connectToDB from "@/lib/utils/db/connectToDB";
 import Link from "next/link";
 
 const posts = [
@@ -15,7 +16,11 @@ const posts = [
   },
 ];
 
-export default function Home() {
+
+const Home = async () => {
+
+  await connectToDB() 
+
   return (
     <div className="u-main-container u-padding-content-container">
       <h1 className="t-main-title">Stay up to date with AXORIA</h1>
@@ -59,4 +64,9 @@ export default function Home() {
       </ul>
     </div>
   );
-}
+};
+
+export default Home;
+
+
+
