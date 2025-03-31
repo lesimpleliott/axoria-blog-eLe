@@ -24,3 +24,11 @@ body {
 .t-main-subtitle {
   @apply mb-12 text-zinc-700;
 }
+
+/* FORM */
+.f-label {
+  @apply mb-2 block font-semibold text-gray-700;
+}
+.f-input {
+  @apply mb-7 rounded-md border border-gray-300 p-3 text-gray-700 shadow focus:outline-blue-400
+}
