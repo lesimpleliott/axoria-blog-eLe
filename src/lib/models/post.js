@@ -34,8 +34,8 @@ postSchema.pre("save", async function (next) {
       counter++;
     }
 
-    this.slug = slugCandidate;
     console.log("Slug generated:", this.slug);
+    this.slug = slugCandidate;
   }
   next();
 });

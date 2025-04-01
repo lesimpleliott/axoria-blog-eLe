@@ -1,25 +1,10 @@
+import { getPosts } from "@/lib/serverMethods/blog/postMethods";
 import connectToDB from "@/lib/utils/db/connectToDB";
 import Link from "next/link";
 
-const posts = [
-  {
-    author: "John Doe",
-    title: "How to build a website",
-  },
-  {
-    author: "Jane Smith",
-    title: "Understanding React",
-  },
-  {
-    author: "Alice Johnson",
-    title: "CSS Flexbox Guide",
-  },
-];
-
-
 const Home = async () => {
-
   await connectToDB() 
+  const posts = await getPosts()
 
   return (
     <div className="u-main-container u-padding-content-container">
@@ -46,14 +31,14 @@ const Home = async () => {
                   })}
                 </time>
                 <Link
-                  href={`/categories/author/${post.author}`}
+                  href={`/categories/author/johnDoe`}
                   className="ml-auto truncate text-base whitespace-nowrap text-gray-700 hover:text-gray-600"
                 >
-                  {post.author}
+                  John Doe
                 </Link>
               </div>
               <Link
-                href={`/articles/${post.title}`}
+                href={`/article/${post.slug}`}
                 className="mt-6 inline-block text-xl font-semibold text-zinc-800 hover:text-zinc-600"
               >
                 {post.title}
