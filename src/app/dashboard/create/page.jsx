@@ -7,8 +7,10 @@ const page = () => {
   const tagInputRef = useRef(null);
 
   function handleSubmit(e) {
+    // Prevent the default form submission behavior
     e.preventDefault();
 
+    // Create a FormData object from the form
     const formData = new FormData(e.target);
     for (const [key, value] of formData.entries()) {
       console.log(key, value);
@@ -16,11 +18,29 @@ const page = () => {
     const result = addPost(formData);
   }
 
-  function handleAddTag(e) {
-    e.preventDefault();
+  function handleAddTag() {
+    // Add a new tag to the tags array
+    const newTag = tagInputRef.current.value.trim().toLowerCase();
+
+    // Check if the new tag is not empty, not already in the tags array, and the length of tags is less than or equal to 4
+    if (newTag !== "" && !tags.includes(newTag) && tags.length <= 4) {
+      setTags([...tags, newTag]);
+      tagInputRef.current.value = "";
+    }
   }
 
-  function handleRemoveTag(tag) {}
+  function handleRemoveTag(tagToRemove) {
+    // Remove the tag from the tags array
+    setTags(tags.filter((tag) => tag !== tagToRemove));
+  }
+
+  function handleEnterOnTagInput(e) {
+    // Check if the pressed key is "Enter"
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddTag();
+    }
+  }
 
   return (
     <main className="u-main-container mt-32 mb-44 bg-white p-7">
@@ -52,6 +72,7 @@ const page = () => {
               id="tag"
               placeholder="Add a tag"
               ref={tagInputRef}
+              onKeyDown={handleEnterOnTagInput}
             />
             <button
               className="mx-4 rounded-md border-none bg-indigo-500 p-3 font-bold text-white hover:bg-indigo-700"
@@ -70,7 +91,7 @@ const page = () => {
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
-                    className="ml-2 text-red-300 hover:text-red-400"
+                    className="ml-2 cursor-pointer text-red-300 hover:text-red-400"
                   >
                     &times;
                   </button>
