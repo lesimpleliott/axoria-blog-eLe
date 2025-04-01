@@ -15,6 +15,12 @@ const postSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Tag",
+      },
+    ],
   },
   { timestamps: true },
 );
@@ -34,7 +40,6 @@ postSchema.pre("save", async function (next) {
       counter++;
     }
 
-    console.log("Slug generated:", this.slug);
     this.slug = slugCandidate;
   }
   next();

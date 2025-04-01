@@ -3,15 +3,16 @@ import { addPost } from "@/lib/serverActions/blog/postServerActions";
 import { useRef, useState } from "react";
 
 const page = () => {
-  const [tags, setTags] = useState(["CSS", "Javascript"]);
+  const [tags, setTags] = useState([]);
   const tagInputRef = useRef(null);
 
   function handleSubmit(e) {
     // Prevent the default form submission behavior
     e.preventDefault();
 
-    // Create a FormData object from the form
     const formData = new FormData(e.target);
+    formData.set("tags", JSON.stringify(tags));
+
     for (const [key, value] of formData.entries()) {
       console.log(key, value);
     }
@@ -42,13 +43,20 @@ const page = () => {
     }
   }
 
+  const maxTags = 5;
+  const tagsRemaining = maxTags - tags.length;
+  const tagsRemainingText =
+    tagsRemaining > 0
+      ? `You can add ${tagsRemaining} more tag${tagsRemaining > 1 ? "s" : ""}.`
+      : "You have reached the maximum number of tags.";
+
   return (
     <main className="u-main-container mt-32 mb-44 bg-white p-7">
       <h1 className="mb-4 text-4xl">Write an article 📝</h1>
 
       <form onSubmit={handleSubmit} className="pb-6">
         {/* TITRE */}
-        <label htmlFor="title" className="f-label">
+        <label htmlFor="title" className="f-label mb-2">
           Title
         </label>
         <input
@@ -63,8 +71,12 @@ const page = () => {
         {/* TAGS */}
         <div className="mb-10">
           <label htmlFor="tag" className="f-label">
-            Add a tag(s) (optional, max 5)
+            Add a tag(s)
           </label>
+          <p className="mb-2 text-sm text-gray-400 italic">
+            {tagsRemainingText}
+          </p>
+
           <div className="flex">
             <input
               type="text"
@@ -109,7 +121,7 @@ const page = () => {
         <a
           href="https://www.markdownguide.org/cheat-sheet/"
           target="_blank"
-          className="mb-4 block text-blue-400 hover:text-blue-600 hover:underline"
+          className="mb-2 block text-blue-400 hover:text-blue-600 hover:underline"
         >
           How to use Markdown syntax?
         </a>
