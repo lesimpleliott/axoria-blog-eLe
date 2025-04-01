@@ -30,5 +30,5 @@ body {
   @apply mb-2 block font-semibold text-gray-700;
 }
 .f-input {
-  @apply mb-7 rounded-md border border-gray-300 p-3 text-gray-700 shadow focus:outline-blue-400
+  @apply rounded-md border border-gray-300 p-3 text-gray-700 shadow focus:outline-blue-400
 }

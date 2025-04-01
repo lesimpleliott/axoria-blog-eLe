@@ -1,8 +1,11 @@
 "use client";
-
 import { addPost } from "@/lib/serverActions/blog/postServerActions";
+import { useRef, useState } from "react";
 
 const page = () => {
+  const [tags, setTags] = useState(["CSS", "Javascript"]);
+  const tagInputRef = useRef(null);
+
   function handleSubmit(e) {
     e.preventDefault();
 
@@ -13,11 +16,18 @@ const page = () => {
     const result = addPost(formData);
   }
 
+  function handleAddTag(e) {
+    e.preventDefault();
+  }
+
+  function handleRemoveTag(tag) {}
+
   return (
     <main className="u-main-container mt-32 mb-44 bg-white p-7">
       <h1 className="mb-4 text-4xl">Write an article 📝</h1>
 
       <form onSubmit={handleSubmit} className="pb-6">
+        {/* TITRE */}
         <label htmlFor="title" className="f-label">
           Title
         </label>
@@ -25,11 +35,52 @@ const page = () => {
           type="text"
           name="title"
           id="title"
-          className="f-input w-full"
+          className="f-input mb-10 w-full"
           placeholder="Enter the title of your article"
           required
         />
 
+        {/* TAGS */}
+        <div className="mb-10">
+          <label htmlFor="tag" className="f-label">
+            Add a tag(s) (optional, max 5)
+          </label>
+          <div className="flex">
+            <input
+              type="text"
+              className="f-input"
+              id="tag"
+              placeholder="Add a tag"
+              ref={tagInputRef}
+            />
+            <button
+              className="mx-4 rounded-md border-none bg-indigo-500 p-3 font-bold text-white hover:bg-indigo-700"
+              onClick={handleAddTag}
+              type="button"
+            >
+              Add
+            </button>
+            <div className="flex grow items-center gap-2 overflow-y-auto rounded-md border border-gray-300 px-3 whitespace-nowrap shadow">
+              {tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="ml-2 text-red-300 hover:text-red-400"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ARTICLE */}
         <label htmlFor="markdownArticle" className="f-label">
           Write your article using markdown - do not repeat the already given
           title
@@ -45,7 +96,7 @@ const page = () => {
           name="markdownArticle"
           id="markdownArticle"
           rows={8}
-          className="f-input w-full"
+          className="f-input mb-10 w-full"
           placeholder="Write your article here..."
           required
         ></textarea>
