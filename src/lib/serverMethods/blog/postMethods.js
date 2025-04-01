@@ -4,7 +4,10 @@ import connectToDB from "@/lib/utils/db/connectToDB";
 export async function getPost(slug) {
   try {
     await connectToDB();
-    const post = await Post.findOne({ slug });
+    const post = await Post.findOne({ slug }).populate({
+      path: "tags",
+      select: "name slug",
+    });
     return post;
   } catch (err) {
     console.error("Error while fetching post:", err);
@@ -13,11 +16,11 @@ export async function getPost(slug) {
 }
 
 export async function getPosts() {
-  try { 
-    await connectToDB()
+  try {
+    await connectToDB();
     const posts = await Post.find();
-    return posts 
-  } catch(err) {
+    return posts;
+  } catch (err) {
     console.error("Error while fetching posts:", err);
     throw new Error("An error occurred while fetching the posts");
   }
