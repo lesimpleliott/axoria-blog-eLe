@@ -6,6 +6,11 @@ import connectToDB from "@/lib/utils/db/connectToDB";
 import createDOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import { marked } from "marked";
+import { markedHighlight } from "marked-highlight";
+import Prism from "prismjs";
+import "prismjs/components/prism-css";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-markup";
 import slugify from "slugify";
 
 // Fonction pour nettoyer le HTML généré par le markdown
@@ -38,10 +43,25 @@ export async function addPost(formData) {
     );
 
     // Gestion du markdown
+    marked.use(
+      markedHighlight({
+        highlight: (code, language) => {
+          const validLanguage = Prism.languages[language]
+            ? language
+            : "plaintext";
+
+          return Prism.highlight(
+            code,
+            Prism.languages[validLanguage],
+            validLanguage,
+          );
+        },
+      }),
+    );
+
     let markdownHTMLResult = marked(markdownArticle);
 
-    // Nettoyage du HTML généré par le markdown
-    // Note: DOMPurify est utilisé pour éviter les attaques XSS
+    // Nettoyage du HTML généré par le markdown. DOMPurify est utilisé pour éviter les attaques XSS
     markdownHTMLResult = DOMPurify.sanitize(markdownHTMLResult);
 
     // Création de l'article

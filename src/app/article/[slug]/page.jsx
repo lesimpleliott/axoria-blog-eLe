@@ -1,5 +1,6 @@
 import { getPost } from "@/lib/serverMethods/blog/postMethods";
 import Link from "next/link";
+import "prism-themes/themes/prism-dracula.css";
 import "./article-styles.css";
 
 const page = async ({ params }) => {
