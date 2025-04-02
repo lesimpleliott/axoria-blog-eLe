@@ -1,29 +1,67 @@
 "use client";
 import { addPost } from "@/lib/serverActions/blog/postServerActions";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 const page = () => {
   const [tags, setTags] = useState([]);
+
+  const router = useRouter();
+
   const tagInputRef = useRef(null);
+  const submitButtonRef = useRef(null);
+  const serverValidationText = useRef(null);
 
-  function handleSubmit(e) {
-    // Prevent the default form submission behavior
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
-    formData.set("tags", JSON.stringify(tags));
+  async function handleSubmit(e) {
+    e.preventDefault(); // Empêche le rechargement de la page
+    const formData = new FormData(e.target); // Récupération des données du formulaire
+    formData.set("tags", JSON.stringify(tags)); // Ajout des tags au FormData
 
     for (const [key, value] of formData.entries()) {
       console.log(key, value);
     }
-    const result = addPost(formData);
+
+    // Reset le message de validation
+    serverValidationText.current.textContent = "";
+    submitButtonRef.current.textContent = "Saving...";
+    submitButtonRef.current.disabled = true; // Désactive le bouton de soumission
+
+    try {
+      // Simule une attente de 1 seconde avant d'envoyer la requête
+      // ou sans délai, utiliser la ligne suivante :
+      // const result = await addPost(formData);
+      const [result] = await Promise.all([
+        addPost(formData),
+        new Promise((res) => setTimeout(res, 1000)), // minimum 1s
+      ]);
+
+      if (result.success) {
+        submitButtonRef.current.textContent = "Post saved!";
+
+        let countdown = 3;
+        serverValidationText.current.textContent = `Post saved! Redirecting in ${countdown} seconds...`;
+
+        const interval = setInterval(() => {
+          countdown--;
+          serverValidationText.current.textContent = `Post saved! Redirecting in ${countdown} second${countdown > 1 ? "s" : ""}...`;
+          if (countdown === 0) {
+            clearInterval(interval);
+            router.push(`/article/${result.slug}`);
+          }
+        }, 1000);
+      }
+    } catch (err) {
+      serverValidationText.current.textContent = `${err.message}`;
+      submitButtonRef.current.textContent = "Submit";
+      submitButtonRef.current.disabled = false;
+    }
   }
 
   function handleAddTag() {
-    // Add a new tag to the tags array
+    // Recuperation de la valeur de l'input
     const newTag = tagInputRef.current.value.trim().toLowerCase();
 
-    // Check if the new tag is not empty, not already in the tags array, and the length of tags is less than or equal to 4
+    // Vérifie si la valeur n'est pas vide, n'est pas déjà présente dans le tableau et que le tableau ne dépasse pas 5 éléments
     if (newTag !== "" && !tags.includes(newTag) && tags.length <= 4) {
       setTags([...tags, newTag]);
       tagInputRef.current.value = "";
@@ -31,12 +69,12 @@ const page = () => {
   }
 
   function handleRemoveTag(tagToRemove) {
-    // Remove the tag from the tags array
+    // Supprime le tag du tableau
     setTags(tags.filter((tag) => tag !== tagToRemove));
   }
 
   function handleEnterOnTagInput(e) {
-    // Check if the pressed key is "Enter"
+    // Vérifie si la touche pressée est "Enter"
     if (e.key === "Enter") {
       e.preventDefault();
       handleAddTag();
@@ -134,9 +172,16 @@ const page = () => {
           required
         ></textarea>
 
-        <button className="min-w-44 rounded-md border-none bg-indigo-500 px-4 py-3 font-bold text-white hover:bg-indigo-700">
+        <button
+          ref={submitButtonRef}
+          className="min-w-44 rounded-md border-none bg-indigo-500 px-4 py-3 font-bold text-white hover:bg-indigo-700"
+        >
           Submit
         </button>
+        <p
+          ref={serverValidationText}
+          className="mt-1 pl-1.5 text-sm font-light text-gray-400 italic"
+        ></p>
       </form>
     </main>
   );
