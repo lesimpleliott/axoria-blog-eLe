@@ -1,5 +1,8 @@
+"use server";
+
+import { User } from "@/lib/models/user";
 import connectToDB from "@/lib/utils/db/connectToDB";
-import bcrypt from "bcryptjs/dist/bcrypt";
+import bcrypt from "bcryptjs";
 import slugify from "slugify";
 
 export async function register(formData) {
@@ -13,7 +16,7 @@ export async function register(formData) {
 
   // Vérifie si le mot de passe est supérieur à 3 caractères
   // Amélioration possible : ajouter des regEx pour vérifier la force du mot de passe
-  if (password.length < 6) {
+  if (password.length < 3) {
     throw new Error("Password must be at least 6 characters long");
   }
   // Vérifie si les mots de passe sont identiques
@@ -40,6 +43,7 @@ export async function register(formData) {
       email,
       password: hashedPassword,
     });
+    await newUser.save(); // Enregistrement de l'utilisateur dans la base de données
     console.log("newUser saved to DB", newUser);
 
     return { success: true };
