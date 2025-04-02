@@ -3,8 +3,16 @@
 import { Post } from "@/lib/models/post";
 import { Tag } from "@/lib/models/tag";
 import connectToDB from "@/lib/utils/db/connectToDB";
+import createDOMPurify from "dompurify";
+import { JSDOM } from "jsdom";
+import { marked } from "marked";
 import slugify from "slugify";
 
+// Fonction pour nettoyer le HTML généré par le markdown
+const window = new JSDOM("").window;
+const DOMPurify = createDOMPurify(window);
+
+// Fonction pour ajouter un article
 export async function addPost(formData) {
   const { title, markdownArticle, tags } = Object.fromEntries(formData);
 
@@ -29,9 +37,18 @@ export async function addPost(formData) {
       }),
     );
 
+    // Gestion du markdown
+    let markdownHTMLResult = marked(markdownArticle);
+
+    // Nettoyage du HTML généré par le markdown
+    // Note: DOMPurify est utilisé pour éviter les attaques XSS
+    markdownHTMLResult = DOMPurify.sanitize(markdownHTMLResult);
+
+    // Création de l'article
     const newPost = new Post({
       title,
       markdownArticle,
+      markdownHTMLResult,
       tags: tagIds,
     });
 

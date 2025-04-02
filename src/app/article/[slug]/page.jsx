@@ -1,5 +1,6 @@
 import { getPost } from "@/lib/serverMethods/blog/postMethods";
 import Link from "next/link";
+import "./article-styles.css";
 
 const page = async ({ params }) => {
   const { slug } = await params;
@@ -17,7 +18,11 @@ const page = async ({ params }) => {
           </Link>
         ))}
       </div>
-      <p>{post.markdownArticle}</p>
+
+      <section
+        className="article-styles"
+        dangerouslySetInnerHTML={{ __html: post.markdownHTMLResult }}
+      />
     </main>
   );
 };
