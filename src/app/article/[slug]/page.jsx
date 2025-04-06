@@ -13,7 +13,7 @@ const page = async ({ params }) => {
       <div className="mb-2 flex flex-wrap gap-2">
         {post.tags.map((tag) => (
           <Link key={tag._id} href={`categories/tags/${tag.slug}`}>
-            <li className="inline-block cursor-pointer rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-600 hover:bg-gray-300">
+            <li className="inline-block cursor-pointer rounded-full bg-sky-100 px-3 py-1 text-sm font-semibold text-sky-900 hover:bg-sky-300">
               #{tag.name}
             </li>
           </Link>

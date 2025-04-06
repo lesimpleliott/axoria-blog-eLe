@@ -14,7 +14,7 @@ const Home = async () => {
         {posts.map((post, index) => (
           <li
             key={index}
-            className="rounded-md shadow-md transition hover:shadow-xl"
+            className="rounded-md bg-white shadow-md transition hover:shadow-xl"
           >
             <section className="px-5 pt-5 pb-7">
               <div className="flex items-baseline gap-x-4 text-xs">
