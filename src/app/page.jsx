@@ -1,10 +1,8 @@
 import { getPosts } from "@/lib/serverMethods/blog/postMethods";
-import connectToDB from "@/lib/utils/db/connectToDB";
 import Link from "next/link";
 
 const Home = async () => {
-  await connectToDB() 
-  const posts = await getPosts()
+  const posts = await getPosts();
 
   return (
     <div className="u-main-container u-padding-content-container">
@@ -52,6 +50,3 @@ const Home = async () => {
 };
 
 export default Home;
-
-
-
