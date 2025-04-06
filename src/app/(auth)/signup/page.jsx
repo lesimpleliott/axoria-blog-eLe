@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
-
 const page = () => {
   const serverInfoRef = useRef(null);
   const submitButtonRef = useRef(null);
@@ -46,7 +45,7 @@ const page = () => {
 
   return (
     <main className="mx-auto mt-32 mb-44 max-w-2xl bg-white p-7 px-12">
-      <h1 className="mx-auto mb-4 text-4xl">Sign up</h1>
+      {/* <h1 className="mx-auto mb-4 text-4xl">Sign up</h1> */}
 
       <form className="mx-auto flex flex-col" onSubmit={handleSubmit}>
         {/* NAME */}
