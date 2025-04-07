@@ -107,9 +107,38 @@ export async function login(formData) {
 
     console.log("Session created:", session);
     return { success: true };
-
   } catch (err) {
     console.error("Error while logging in:", err);
     throw new Error(err.message || "An error occurred while logging in");
   }
+}
+
+export async function logout() {
+  const cookieStore = await cookies(); // Récupère le cookie de session
+  const sessionId = cookieStore.get("sessionId")?.value; // Récupère l'ID de la session
+
+  try {
+    await Session.findByIdAndDelete(sessionId); // Supprime la session de la base de données
+    cookieStore.delete("sessionId"); // Supprime le cookie de session
+    // cookieStore.set("sessionId", "", {
+    //   httpOnly: true, // Empêche l'accès via JavaScript côté client
+    //   secure: process.env.NODE_ENV === "production", // Utilise le cookie sécurisé en production
+    //   path: "/", // Chemin du cookie
+    //   maxAge: 0, // supprime immédiatement le cookie
+    //   sameSite: "strict",
+    // });
+
+    return { success: true };
+  } catch (err) {
+    console.error("Error while logging out:", err);
+    throw new Error(err.message || "An error occurred while logging out");
+  }
+}
+
+export async function isPrivatePage(pathname) {
+  const privateSegments = ["/dashboard", "/settings/profile"];
+
+  return privateSegments.some(
+    (segment) => pathname === segment || pathname.startsWith(segment + "/"),
+  );
 }

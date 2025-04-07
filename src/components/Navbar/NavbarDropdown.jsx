@@ -1,22 +1,32 @@
 "use client";
 
+import {
+  isPrivatePage,
+  logout,
+} from "@/lib/serverActions/session/sessionServerActions";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const NavbarDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef();
+  const router = useRouter();
 
   function handleDropdown() {
     setIsOpen(!isOpen);
     console.log("Dropdown clicked", "isOpen:", isOpen);
   }
 
-  function handleLogout() {
-    console.log("Logout clicked");
-    // Add logout functionality here
-    // closeDropdown();
+  async function handleLogout() {
+    await logout();
+
+    //
+    const currentPath = window.location.pathname;
+    if (isPrivatePage(currentPath)) {
+      router.push("/signin");
+    }
   }
 
   function closeDropdown() {
