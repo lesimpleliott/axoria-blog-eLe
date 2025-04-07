@@ -11,6 +11,7 @@ const page = () => {
   const tagInputRef = useRef(null);
   const submitButtonRef = useRef(null);
   const serverValidationText = useRef(null);
+  const imgUploadValidationText = useRef(null);
 
   async function handleSubmit(e) {
     e.preventDefault(); // Empêche le rechargement de la page
@@ -88,6 +89,38 @@ const page = () => {
       ? `You can add ${tagsRemaining} more tag${tagsRemaining > 1 ? "s" : ""}.`
       : "You have reached the maximum number of tags.";
 
+  function handleFileChange(e) {
+    const file = e.target.files[0];
+    const validImageTypes = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!validImageTypes.includes(file.type)) {
+      imgUploadValidationText.current.textContent =
+        "Please upload a valid image file (JPEG, PNG, WEBP).";
+      e.target.value = "";
+      return;
+    } else {
+      imgUploadValidationText.current.textContent = "";
+    }
+
+    const img = new Image();
+    img.addEventListener("load", checlImgSizeOnLoad);
+
+    function checlImgSizeOnLoad() {
+      if (img.width > 1280 || img.height > 720) {
+        imgUploadValidationText.current.textContent =
+          "Please upload an image with a maximum size of 1280 x 720 pixels.";
+        e.target.value = "";
+        URL.revokeObjectURL(img.src); // Libère la mémoire
+        return;
+      } else {
+        imgUploadValidationText.current.textContent = "";
+        URL.revokeObjectURL(img.src); // Libère la mémoire car inutilisé après lecture de la taille
+      }
+    }
+
+    img.src = URL.createObjectURL(file); // Crée une URL temporaire pour l'image
+  }
+
   return (
     <main className="u-main-container mt-32 mb-44 bg-white p-7">
       <h1 className="mb-4 text-4xl">Write an article 📝</h1>
@@ -105,6 +138,27 @@ const page = () => {
           placeholder="Enter the title of your article"
           required
         />
+
+        {/* IMAGE */}
+        <label htmlFor="coverImage" className="f-label mb-2">
+          Cover image{" "}
+          <span className="text-sm font-light text-gray-500 italic">
+            (1280 x 720 for best quality, or less)
+          </span>
+        </label>
+        <input
+          type="file"
+          name="coverImage"
+          id="coverImage"
+          className="f-input mb-0.5 w-full"
+          placeholder="Article's cover image"
+          required
+          onChange={handleFileChange}
+        />
+        <p
+          ref={imgUploadValidationText}
+          className="mb-10 ml-2 text-sm text-red-700 italic"
+        ></p>
 
         {/* TAGS */}
         <div className="mb-10">
@@ -153,8 +207,10 @@ const page = () => {
 
         {/* ARTICLE */}
         <label htmlFor="markdownArticle" className="f-label">
-          Write your article using markdown - do not repeat the already given
-          title
+          Write your article using markdown {""}{" "}
+          <span className="text-sm font-light text-gray-500 italic">
+            (do not repeat the already given title)
+          </span>
         </label>
         <a
           href="https://www.markdownguide.org/cheat-sheet/"
