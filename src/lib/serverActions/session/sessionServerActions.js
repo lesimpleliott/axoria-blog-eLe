@@ -3,6 +3,7 @@
 import { Session } from "@/lib/models/session";
 import { User } from "@/lib/models/user";
 import connectToDB from "@/lib/utils/db/connectToDB";
+import AppError from "@/lib/utils/errorHandling/customError";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import slugify from "slugify";
@@ -11,30 +12,52 @@ export async function register(formData) {
   const { userName, email, password, passwordRepeat } =
     Object.fromEntries(formData);
 
-  // Vérifie si le mot de passe est supérieur à 3 caractères
-  if (userName.length < 3) {
-    throw new Error("Username must be at least 3 characters long");
-  }
-
-  // Vérifie si le mot de passe est supérieur à 3 caractères
-  // Amélioration possible : ajouter des regEx pour vérifier la force du mot de passe
-  if (password.length < 3) {
-    throw new Error("Password must be at least 6 characters long");
-  }
-  // Vérifie si les mots de passe sont identiques
-  if (password !== passwordRepeat) {
-    throw new Error("Passwords do not match");
-  }
-
   try {
-    connectToDB();
-    const user = await User.findOne({ userName });
-
-    if (user) {
-      throw new Error("Username already exists");
+    // Vérifie la longeur du nom d'utilisateur / Côté serveur
+    if (typeof userName !== "string" || userName.trim().length < 3) {
+      throw new AppError("Username must be at least 3 characters long");
     }
 
-    const normalizedUserName = slugify(userName, { lower: true, strict: true }); // normalize the username
+    // Vérifie la longueur du mot de passe (version dev)
+    if (typeof password !== "string" || password.trim().length < 6) {
+      throw new AppError("Password must be at least 6 characters long");
+    }
+
+    // Vérifie que le mot de passe est robuste (version prod)
+    // const strongPasswordRegex =
+    //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    // if (!strongPasswordRegex.test(password)) {
+    //   throw new AppError(
+    //     "Password must be at least 8 characters and include upper/lowercase, number and special character",
+    //   );
+    // }
+
+    // Vérifie si les mots de passe sont identiques
+    if (password !== passwordRepeat) {
+      throw new AppError("Passwords do not match");
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Vérifie si l'email est valide / Côté serveur
+    if (typeof email !== "string" || !emailRegex.test(email.trim())) {
+      throw new AppError("Invalid email format");
+    }
+
+    connectToDB(); // Connexion à la base de données
+
+    // On vérifie que l'utilisateur n'existe pas (username ou email)
+    const user = await User.findOne({
+      $or: [{ userName }, { email }],
+    }); // si user est null, l'utilisateur n'existe pas, sinon retroune un user
+    if (user) {
+      throw new AppError(
+        user.userName === userName // Vérifie si le nom d'utilisateur existe déjà
+          ? "Username already exists" // si le usernam existe déjà
+          : "Email already registered", // si l'email existe déjà
+      );
+    }
+
+    const normalizedUserName = slugify(userName, { lower: true, strict: true }); // Normalisation du nom d'utilisateur
 
     const salt = await bcrypt.genSalt(10); // Génération d'un salt
     const hashedPassword = await bcrypt.hash(password, salt); // Hashage du mot de passe
@@ -50,8 +73,13 @@ export async function register(formData) {
 
     return { success: true };
   } catch (err) {
-    console.error("Error while saving user:", err);
-    throw new Error(err.message || "An error occurred while saving the user");
+    console.error("Error while registering user:", err);
+
+    if (err instanceof AppError) {
+      throw err; // Si c'est une erreur personnalisée, on la renvoie
+    }
+
+    throw new Error("An error occurred while saving the user");
   }
 }
 
