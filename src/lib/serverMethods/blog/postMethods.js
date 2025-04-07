@@ -1,29 +1,28 @@
 import { Post } from "@/lib/models/post";
 import { Tag } from "@/lib/models/tag";
 import connectToDB from "@/lib/utils/db/connectToDB";
+import { notFound } from "next/navigation";
 void Tag;
 
 export async function getPost(slug) {
-  try {
-    await connectToDB();
-    const post = await Post.findOne({ slug }).populate({
-      path: "tags",
-      select: "name slug",
-    });
-    return post;
-  } catch (err) {
-    console.error("Error while fetching post:", err);
-    throw new Error("An error occurred while fetching the post");
-  }
+  await connectToDB();
+  const post = await Post.findOne({ slug }).populate({
+    path: "tags",
+    select: "name slug",
+  });
+
+  // Pas besoin de Try/Catch ici 
+  // On utilise le composant nextjs : app/not-found.jsx
+  // Si le post n'existe pas, on renvoie une page 404
+  if (!post) return notFound();
+
+  return post;
 }
 
 export async function getPosts() {
-  try {
-    await connectToDB();
-    const posts = await Post.find();
-    return posts;
-  } catch (err) {
-    console.error("Error while fetching posts:", err);
-    throw new Error("An error occurred while fetching the posts");
-  }
+  // ici le try catch est implicite avec le middleware errorHandler
+  // composant de nextjs : app/error.jsx
+  await connectToDB();
+  const posts = await Post.find();
+  return posts;
 }
