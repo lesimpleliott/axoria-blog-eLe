@@ -18,9 +18,9 @@ const page = () => {
     const formData = new FormData(e.target); // Récupération des données du formulaire
     formData.set("tags", JSON.stringify(tags)); // Ajout des tags au FormData
 
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(key, value);
+    // }
 
     // Reset le message de validation
     serverValidationText.current.textContent = "";

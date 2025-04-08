@@ -39,7 +39,8 @@ export async function addPost(formData) {
     await connectToDB(); // Connexion à la base de données
 
     // Vérification de la session côté serveur
-    const session = sessionInfos();
+    const session = await sessionInfos();
+
     if (!session.success) {
       throw new AppError("Authentification required");
     }
@@ -108,13 +109,12 @@ export async function addPost(formData) {
     return { success: true, slug: savedPost.slug };
   } catch (err) {
     console.error("Error while saving post:", err); // côté TErminal/serveur
-    
+
     // Gestion des erreurs et renvoi d'un message d'erreur 'personnalisé'
-    if(err instanceof AppError ) {
-      throw err
+    if (err instanceof AppError) {
+      throw err;
     }
 
     throw new Error("Error while saving post"); // côté client
-
-    }
+  }
 }
