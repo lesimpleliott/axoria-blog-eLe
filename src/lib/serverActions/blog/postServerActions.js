@@ -5,6 +5,7 @@ import { Tag } from "@/lib/models/tag";
 import { sessionInfos } from "@/lib/serverMethods/session/sessionMethods";
 import connectToDB from "@/lib/utils/db/connectToDB";
 import AppError from "@/lib/utils/errorHandling/customError";
+import crypto from "crypto";
 import createDOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import { marked } from "marked";
@@ -13,6 +14,7 @@ import Prism from "prismjs";
 import "prismjs/components/prism-css";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-markup";
+import sharp from "sharp";
 import slugify from "slugify";
 
 // Fonction pour nettoyer le HTML généré par le markdown
@@ -21,7 +23,8 @@ const DOMPurify = createDOMPurify(window);
 
 // Fonction pour ajouter un article
 export async function addPost(formData) {
-  const { title, markdownArticle, tags } = Object.fromEntries(formData);
+  const { title, markdownArticle, tags, coverImage } =
+    Object.fromEntries(formData);
 
   try {
     // Validation du titre côté serveur
@@ -40,13 +43,57 @@ export async function addPost(formData) {
 
     // Vérification de la session côté serveur
     const session = await sessionInfos();
-
     if (!session.success) {
       throw new AppError("Authentification required");
     }
 
-    // Gestion des tags
+    // GESTION DE L'UPLOAD DE L'IMAGE
+    // Vérification de l'existence de l'image
+    if (!coverImage || !(coverImage instanceof File)) {
+      throw new AppError("Invalid Data"); // On reste flou sur le message d'erreur pour ne pas donner d'indices à l'attaquant
+    }
+    // Vérification du format de fichier de l'image
+    const validImageTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+    ];
+    if (!validImageTypes.includes(coverImage.type)) {
+      throw new AppError("Invalid image type");
+    }
 
+    // Vérification de la taille de l'image
+    const imageBuffer = Buffer.from(await coverImage.arrayBuffer()); // transforme en donnée brute pour lire les données idem coté front : const img = new Image();
+    const { width, height } = await sharp(imageBuffer).metadata();
+    if (width > 1280 || height > 720) {
+      throw new AppError("Image size too large");
+    }
+
+    // Génération d'un nom de fichier unique avec Crytpo : bibliothèque native de Node.js
+    // crypto.randomUUID() génère un identifiant unique universel (UUID) pour éviter les collisions de noms de fichiers
+    const uniqueFileName = `${crypto.randomUUID()}_${coverImage.name.trim()}`;
+
+    // Enregistrement de l'image sur Bunny CDN
+    const uploadUrl = `${process.env.BUNNY_STORAGE_HOST}/${process.env.BUNNY_STORAGE_ZONE}/${uniqueFileName}`; // URL de destination
+    const publicImageUrl = `https://axoriapullzone.b-cdn.net/${uniqueFileName}`; // URL publique de l'image
+
+    const response = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: {
+        AccessKey: process.env.BUNNY_STORAGE_API_KEY,
+        "Content-type": "application/octet-stream",
+      },
+      body: imageBuffer,
+    });
+
+    if (!response.ok) {
+      throw new AppError(
+        `Error while uploading image : ${response.statusText}`,
+      );
+    }
+
+    // Gestion des tags
     // Vérification de l'existence des tags
     if (typeof tags !== "string" || tags.trim().length === 0) {
       throw new AppError("Invalid data");
@@ -101,6 +148,7 @@ export async function addPost(formData) {
       markdownArticle,
       markdownHTMLResult,
       tags: tagIds,
+      coverImageUrl: publicImageUrl,
     });
 
     const savedPost = await newPost.save();
