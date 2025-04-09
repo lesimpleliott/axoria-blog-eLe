@@ -91,11 +91,16 @@ const page = () => {
 
   function handleFileChange(e) {
     const file = e.target.files[0];
-    const validImageTypes = ["image/jpeg", "image/png", "image/webp"];
+    const validImageTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+    ];
 
     if (!validImageTypes.includes(file.type)) {
       imgUploadValidationText.current.textContent =
-        "Please upload a valid image file (JPEG, PNG, WEBP).";
+        "Please upload a valid image file (JPEG, JPG, PNG, WEBP).";
       e.target.value = "";
       return;
     } else {
@@ -103,9 +108,9 @@ const page = () => {
     }
 
     const img = new Image();
-    img.addEventListener("load", checlImgSizeOnLoad);
+    img.addEventListener("load", checkImgSizeOnLoad);
 
-    function checlImgSizeOnLoad() {
+    function checkImgSizeOnLoad() {
       if (img.width > 1280 || img.height > 720) {
         imgUploadValidationText.current.textContent =
           "Please upload an image with a maximum size of 1280 x 720 pixels.";

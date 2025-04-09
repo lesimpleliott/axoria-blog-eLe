@@ -6,12 +6,19 @@ void Tag;
 
 export async function getPost(slug) {
   await connectToDB();
-  const post = await Post.findOne({ slug }).populate({
-    path: "tags",
-    select: "name slug",
-  });
 
-  // Pas besoin de Try/Catch ici 
+  // Populate permet de récupérer les données des références (auteur et les tags du post)
+  const post = await Post.findOne({ slug })
+    .populate({
+      path: "author",
+      select: "userName normalizedUserName",
+    })
+    .populate({
+      path: "tags",
+      select: "name slug",
+    });
+
+  // Pas besoin de Try/Catch ici
   // On utilise le composant nextjs : app/not-found.jsx
   // Si le post n'existe pas, on renvoie une page 404
   if (!post) return notFound();

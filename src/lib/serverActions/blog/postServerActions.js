@@ -148,6 +148,7 @@ export async function addPost(formData) {
       markdownArticle,
       markdownHTMLResult,
       tags: tagIds,
+      author: session.userId,
       coverImageUrl: publicImageUrl,
     });
 
