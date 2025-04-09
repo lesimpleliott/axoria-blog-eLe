@@ -30,6 +30,15 @@ export async function getPosts() {
   // ici le try catch est implicite avec le middleware errorHandler
   // composant de nextjs : app/error.jsx
   await connectToDB();
-  const posts = await Post.find();
+
+  // On utilise populate pour récupérer les données des références (auteur et les tags du post)
+  const posts = await Post.find().populate({
+    path: "author",
+    select: "userName normalizedUserName",
+  });
+  // .populate({
+  //   path: "tags",
+  //   select: "name slug",
+  // });
   return posts;
 }

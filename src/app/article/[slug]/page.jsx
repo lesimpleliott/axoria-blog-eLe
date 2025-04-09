@@ -1,8 +1,8 @@
 import { getPost } from "@/lib/serverMethods/blog/postMethods";
+import Image from "next/image";
 import Link from "next/link";
 import "prism-themes/themes/prism-dracula.css";
 import "./article-styles.css";
-import Image from "next/image";
 
 const page = async ({ params }) => {
   const { slug } = await params;
@@ -31,8 +31,13 @@ const page = async ({ params }) => {
         ))}
       </div>
 
-      <Image src={post.coverImageUrl} alt={post.title} width={1280} height={720} className="mb-10"/>
-
+      <Image
+        src={post.coverImageUrl}
+        alt={post.title}
+        width={1280}
+        height={720}
+        className="mb-10"
+      />
 
       <section
         className="article-styles"
