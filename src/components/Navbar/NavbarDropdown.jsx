@@ -16,7 +16,7 @@ const NavbarDropdown = () => {
 
   function handleDropdown() {
     setIsOpen(!isOpen);
-    console.log("Dropdown clicked", "isOpen:", isOpen);
+    // console.log("Dropdown clicked", "isOpen:", isOpen);
   }
 
   async function handleLogout() {
