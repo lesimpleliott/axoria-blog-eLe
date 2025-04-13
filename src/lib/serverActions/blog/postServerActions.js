@@ -10,6 +10,7 @@ import createDOMPurify from "dompurify";
 import { JSDOM } from "jsdom";
 import { marked } from "marked";
 import { markedHighlight } from "marked-highlight";
+import { revalidatePath } from "next/cache";
 import Prism from "prismjs";
 import "prismjs/components/prism-css";
 import "prismjs/components/prism-javascript";
@@ -163,7 +164,50 @@ export async function addPost(formData) {
     if (err instanceof AppError) {
       throw err;
     }
-
+    console.error(err);
     throw new Error("Error while saving post"); // côté client
+  }
+}
+
+// Fonction pour supprimer un article
+export async function deletePost(id) {
+  try {
+    await connectToDB();
+
+    // On vérifie que l'utilisateur est authentifié
+    const user = await sessionInfos();
+    if (!user) {
+      throw new AppError("Authentification required");
+    }
+
+    // On vérifie que l'article existe
+    const post = await Post.findById(id);
+    if (!post) {
+      throw new AppError("Post not found");
+    }
+
+    // On supprime l'article sur MongoDB
+    await Post.findByIdAndDelete(id);
+
+    if (post.coverImageUrl) {
+      const fileName = post.coverImageUrl.split("/").pop(); // on récupère le nom de l'image avec le dernier segment de l'url
+      const deleteURL = `${process.env.BUNNY_STORAGE_HOST}/${process.env.BUNNY_STORAGE_ZONE}/${fileName}`; // URL de destination
+
+      const response = await fetch(deleteURL, {
+        method: "DELETE",
+        headers: { AccessKey: process.env.BUNNY_STORAGE_API_KEY },
+      });
+      if (!response.ok) {
+        throw new AppError(`Failed to delete image: ${response.statusText}`);
+      }
+      revalidatePath(`/article/${post.slug}`); // Function de gestion du cache et refresh la page pour actualisé la liste des articles dans le dashboard
+    }
+  } catch (err) {
+    // Gestion des erreurs et renvoi d'un message d'erreur 'personnalisé'
+    if (err instanceof AppError) {
+      throw err;
+    }
+    console.error(err);
+    throw new Error("Error while deleting post"); // côté client
   }
 }

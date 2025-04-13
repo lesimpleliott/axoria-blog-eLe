@@ -1,5 +1,7 @@
 "use client";
 
+import { deletePost } from "@/lib/serverActions/blog/postServerActions";
+
 const DeleteButton = ({ id }) => {
   return (
     <button

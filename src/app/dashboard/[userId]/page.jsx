@@ -7,18 +7,18 @@ const page = async () => {
 
   return (
     <main className="u-main-container u-padding-content-container">
-      <h1 className="t-main-title block">
+      <h1 className="t-main-title">
         {`Dashboard - Your article${posts.length > 1 ? "s" : ""}`}
       </h1>
 
-      <ul className="flex flex-col gap-3 rounded-xl bg-slate-50 px-4 py-4">
+      <ul className="mt-6 flex flex-col gap-3 rounded-xl bg-slate-50 px-4 py-4">
         {posts.length > 0 ? (
           posts.map((post) => (
             <li
               key={post._id}
               className="flex items-center gap-2 border-b border-gray-200 pb-3 last:border-0 last:pb-0"
             >
-              <Link href={`/article/${post.slug}`} className="flex-grow">
+              <Link href={`/article/${post.slug}`} className="flex-grow text-nowrap truncate mr-2">
                 {post.title}
               </Link>
               <Link
