@@ -1,8 +1,8 @@
+import NotFound from "@/app/not-found";
 import { Post } from "@/lib/models/post";
 import { Tag } from "@/lib/models/tag";
 import connectToDB from "@/lib/utils/db/connectToDB";
 import { notFound } from "next/navigation";
-void Tag;
 
 export async function getPost(slug) {
   await connectToDB();
@@ -40,5 +40,24 @@ export async function getPosts() {
   //   path: "tags",
   //   select: "name slug",
   // });
+  return posts;
+}
+
+export async function getPostsByTag(tagSlug) {
+  await connectToDB();
+  const tag = await Tag.findOne({ slug: tagSlug }); // On cherche le tag par son slug
+
+  if (!tag) {
+    NotFound();
+  } // Si le tag n'existe pas, on renvoie une page 404
+
+  const posts = await Post.find({ tags: tag._id }) // On cherche les posts qui ont ce tag
+    .populate({
+      path: "author",
+      select: "userName",
+    }) // Populate permet de récupérer les données des références (auteur)
+    .select("title coverImageUrl slug createdAt") // Sélectionne uniquement les champs nécessaires
+    .sort({ createdAt: -1 }); // Tri par date de création décroissante
+
   return posts;
 }
