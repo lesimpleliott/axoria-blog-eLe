@@ -23,7 +23,7 @@ const page = async ({ params }) => {
         </p>
 
         {post.tags.map((tag) => (
-          <Link key={tag._id} href={`categories/tags/${tag.slug}`}>
+          <Link key={tag._id} href={`/categories/tag/${tag.slug}`}>
             <li className="inline-block cursor-pointer rounded-full bg-sky-100 px-3 py-1 text-sm font-semibold text-sky-900 hover:bg-sky-300">
               #{tag.name}
             </li>
