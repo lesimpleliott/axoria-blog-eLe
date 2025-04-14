@@ -21,7 +21,7 @@ const Navbar = async () => {
             <Link className="text-zinc-900" href="/dashboard/create">
               Add an article
             </Link>
-            <NavbarDropdown />
+            <NavbarDropdown userId={session.userId} />
           </>
         )}
 

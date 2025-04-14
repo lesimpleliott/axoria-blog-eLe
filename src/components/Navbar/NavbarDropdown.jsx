@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-const NavbarDropdown = () => {
+const NavbarDropdown = ({ userId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef();
   const router = useRouter();
@@ -59,7 +59,7 @@ const NavbarDropdown = () => {
         <ul className="absolute top-10 right-0 w-[250px] border-x border-b border-zinc-300">
           <li className="border-b border-zinc-300 bg-slate-50 hover:bg-slate-100">
             <Link
-              href="/dashboard"
+              href={`/dashboard/${userId}`}
               onClick={closeDropdown}
               className="block p-4"
             >

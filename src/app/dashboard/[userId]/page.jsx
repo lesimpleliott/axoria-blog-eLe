@@ -1,9 +1,10 @@
-import { getPosts } from "@/lib/serverMethods/blog/postMethods";
+import { getUserPostsFromUserID } from "@/lib/serverMethods/blog/postMethods";
 import Link from "next/link";
 import DeleteButton from "../components/DeleteButton";
 
-const page = async () => {
-  const posts = await getPosts();
+const page = async ({ params }) => {
+  const { userId } = await params;
+  const posts = await getUserPostsFromUserID(userId);
 
   return (
     <main className="u-main-container u-padding-content-container">
@@ -18,7 +19,10 @@ const page = async () => {
               key={post._id}
               className="flex items-center gap-2 border-b border-gray-200 pb-3 last:border-0 last:pb-0"
             >
-              <Link href={`/article/${post.slug}`} className="flex-grow text-nowrap truncate mr-2">
+              <Link
+                href={`/article/${post.slug}`}
+                className="mr-2 flex-grow truncate text-nowrap"
+              >
                 {post.title}
               </Link>
               <Link

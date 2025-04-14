@@ -63,6 +63,14 @@ export async function getPostsByTag(tagSlug) {
   return posts;
 }
 
+export async function getUserPostsFromUserID(userId) {
+  await connectToDB();
+
+  const posts = await Post.find({ author: userId }).select("title _id slug");
+
+  return posts;
+}
+
 export async function getPostsByAuthor(normalizedUserName) {
   await connectToDB();
   const author = await User.findOne({ normalizedUserName }); // On cherche l'auteur par son normalizedUserName
